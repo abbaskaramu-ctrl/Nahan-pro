@@ -9,7 +9,8 @@ export async function onRequest(context) {
 
     const url = new URL(request.url);
 
-    if (request.method === "POST" && url.pathname.endsWith("/api/config/login")) {
+    // کد جدید و منعطف:
+if (request.method === "POST" && (url.pathname.endsWith("/login") || url.pathname.includes("login"))) {
         const body = await request.json();
         const storedUser = await db.prepare("SELECT value FROM system_configs WHERE key = 'admin_username'").first();
         const storedPass = await db.prepare("SELECT value FROM system_configs WHERE key = 'admin_password'").first();
