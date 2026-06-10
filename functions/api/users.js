@@ -70,7 +70,7 @@ export async function onRequest(context) {
             await db.prepare(`
                 INSERT INTO users (uuid, username, email, limit_bytes, expires_at)
                 VALUES (?, ?, ?, ?, ?)
-            \`).bind(
+            `).bind(
                 uuid, data.username, data.email || null, 
                 data.limit_bytes || 0, data.expires_at || null
             ).run();
@@ -79,9 +79,9 @@ export async function onRequest(context) {
 
         if (request.method === "PUT") {
             const data = await request.json();
-            await db.prepare(\`
+            await db.prepare(`
                 UPDATE users SET username = ?, limit_bytes = ?, is_active = ? WHERE uuid = ?
-            \`).bind(
+            `).bind(
                 data.username, data.limit_bytes, data.is_active ? 1 : 0, data.uuid
             ).run();
             return new Response(JSON.stringify({ success: true }));
