@@ -51,7 +51,7 @@ export async function onRequest(context) {
                 // 16-byte UUID extract
                 const clientHashArray = Array.from(view.slice(1, 17)).map(b => b.toString(16).padStart(2, '0'));
                 const clientHash = clientHashArray.join('');
-                const canonicalUuid = \`\${clientHash.slice(0,8)}-\${clientHash.slice(8,12)}-\${clientHash.slice(12,16)}-\${clientHash.slice(16,20)}-\${clientHash.slice(20,32)}\`;
+                const canonicalUuid = `${clientHash.slice(0,8)}-${clientHash.slice(8,12)}-${clientHash.slice(12,16)}-${clientHash.slice(16,20)}-${clientHash.slice(20,32)}`;
                 
                 // D1 SQLite Validation Validation 
                 const dbUser = DB ? await DB.prepare("SELECT * FROM users WHERE uuid = ? AND is_active = 1").bind(canonicalUuid).first() : null;
