@@ -53,5 +53,5 @@ function buildTargetUri(uuid, name, host) {
     // Point the path directly to the `functions/stream.js` engine route
     const path = encodeURI("/stream"); 
     
-    return \`vless://\${uuid}@\${host}:\${port}?encryption=none&security=\${sec}&sni=\${host}&fp=chrome&type=ws&host=\${host}&path=\${path}#\${name}\`;
+    return `vless://${uuid}@${host}:${port}?encryption=none&security=tls`;
 }
