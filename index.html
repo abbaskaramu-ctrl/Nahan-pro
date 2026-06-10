@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nahan Super Panel - Enterprise Worker</title>
+    <!-- We inject custom embedded CSS locally to avoid pulling external dependencies -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: var(--text-main);">Panel Authentication</h2>
+            <input type="text" id="admin-user" placeholder="Admin username">
+            <input type="password" id="admin-pass" placeholder="Admin password">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.75rem;" onclick="doLogin()">Unlock Dashboard</button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <div style="width:32px; height:32px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#000; font-size:16px;">N</div>
+                NAHAN CORE
+            </div>
+            <div class="nav-item active" data-target="view-dashboard">
+                <span>Dashboard & Metrics</span>
+            </div>
+            <div class="nav-item" data-target="view-users">
+                <span>User Management</span>
+            </div>
+            <div class="nav-item" data-target="view-relays">
+                <span>Relay & Routing Layer</span>
+            </div>
+            
+            <div style="flex-grow: 1;"></div>
+            <button class="btn btn-danger" onclick="logout()" style="width: 100%;">Sign Out</button>
+        </aside>
+
+        <!-- Main Content Matrix -->
+        <main class="main-content">
+            <div style="border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px; margin-bottom: 24px;">
+                <div style="display: flex; gap: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></div>Edge Node: Embedded Proxy</div>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></div>D1 Store: Connected</div>
+                </div>
+                <div style="color:var(--primary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Super Panel v4 Enterprise</div>
+            </div>
+            
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="view-section active">
+                <h2>Network Metrics & Health</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>Active Users</h3>
+                        <div class="stats-value" id="stat-users">0</div>
+                    </div>
+                    <div class="card">
+                        <h3>Bandwidth Throughput</h3>
+                        <div class="stats-value" id="stat-traffic">0.00 GB</div>
+                    </div>
+                    <div class="card">
+                        <h3>Security Lock</h3>
+                        <button id="panic-btn" class="btn btn-success" style="width: 100%; height: 100%; font-size: 1rem; font-weight: 800;" onclick="togglePanic()">🟢 Secure Status</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Management View -->
+            <section id="view-users" class="view-section">
+                <div class="flex-between" style="margin-bottom: 1.5rem;">
+                    <h2>Subscription Allocation Matrix</h2>
+                </div>
+                
+                <div class="card" style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <span style="display:block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Profile Alias</span>
+                        <input type="text" id="new-user-name" placeholder="e.g. JohnDevice1" style="margin-bottom: 0;">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="display:block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Traffic Quota (GB, 0 = ∞)</span>
+                        <input type="number" id="new-user-limit" placeholder="e.g. 50" style="margin-bottom: 0;">
+                    </div>
+                    <button class="btn btn-primary" onclick="addUser()" style="padding: 0.75rem 2rem;">Apply Allocation</button>
+                </div>
+
+                <div class="card" style="padding: 0; overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client Profile</th>
+                                <th>Hardware UUID</th>
+                                <th>Telemetry Usage</th>
+                                <th>Operation Control</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- Dynamic Content Rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Relays View -->
+            <section id="view-relays" class="view-section">
+                <h2>Autonomous Relay Matrix (AI Steering)</h2>
+                <div class="card">
+                    <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+                        The streaming proxy automatically parses WebSocket HTTP Upgrade headers and intercepts the SNI payload.
+                        If a user requests AI-powered endpoints (OpenAI, Anthropic, Claude) and your origin edge relies on Cloudflare's general ingress mapping,
+                        this system autonomously intercepts the <code>connect()</code> wrapper and steers the connection towards physical US-based endpoints flagged in the D1 store below.
+                    </p>
+                    <p style="color: var(--success); font-weight: 700; font-size: 0.85rem;">Currently enforced exclusively at the Edge Network via `cloudflare:sockets` byte interceptor engine.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="modal-overlay" id="qr-modal">
+        <div class="modal-content">
+            <h3 style="text-align: center; color: var(--text-main); font-weight: 900;">SCAN PROFILE</h3>
+            <div id="qr-canvas-container" style="text-align: center;"></div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="closeQR()">Close Interface</button>
+        </div>
+    </div>
+
+    <!-- Load App Logic -->
+    <script src="./js/app.js"></script>
+</body>
+</html>
