@@ -35,7 +35,7 @@ async function handleCallbackQuery(cb, db, token) {
     let kb = [];
 
     if (data === "menu_main") {
-        text = "🎛 **Nahan Super Panel - Admin Dashboard**\\nSelect an operation below:";
+        text = "🎛 **Nahan Super Panel - Admin Dashboard**\nSelect an operation below:";
         kb = [
             [{ text: "👥 User Manager", callback_data: "menu_users:0" }, { text: "🌐 Smart Relays", callback_data: "menu_relays" }],
             [{ text: "🛡️ Panic/Security", callback_data: "menu_panic" }, { text: "⚙️ System Configs", callback_data: "menu_sys" }]
@@ -47,16 +47,16 @@ async function handleCallbackQuery(cb, db, token) {
         const countRes = await db.prepare("SELECT COUNT(*) as c FROM users").first();
         const total = countRes.c;
 
-        text = \`👥 **User Manager** (Total: \${total})\\nPage \${page + 1}\`;
+        text = `👥 **User Manager** (Total: ${total})\nPage ${page + 1}`;
         
         results.forEach(u => {
             const status = u.is_active ? "🟢" : "🔴";
-            kb.push([{ text: \`\${status} \${u.username}\`, callback_data: \`user_action:\${u.id}\` }]);
+            kb.push([{ text: `${status} ${u.username}`, callback_data: `user_action:${u.id}` }]);
         });
 
         const navRow = [];
-        if (page > 0) navRow.push({ text: "⬅️ Prev", callback_data: \`menu_users:\${page - 1}\` });
-        if (offset + 5 < total) navRow.push({ text: "Next ➡️", callback_data: \`menu_users:\${page + 1}\` });
+        if (page > 0) navRow.push({ text: "⬅️ Prev", callback_data: `menu_users:${page - 1}` });
+        if (offset + 5 < total) navRow.push({ text: "Next ➡️", callback_data: `menu_users:${page + 1}` });
         if (navRow.length > 0) kb.push(navRow);
         
         kb.push([{ text: "🔙 Main Menu", callback_data: "menu_main" }]);
@@ -65,10 +65,10 @@ async function handleCallbackQuery(cb, db, token) {
         const u = await db.prepare("SELECT * FROM users WHERE id = ?").bind(uid).first();
         if (u) {
             const gbUsed = ((u.uploaded_bytes + u.downloaded_bytes) / 1073741824).toFixed(2);
-            text = \`👤 **User:** \${u.username}\\n🔑 **UUID:** \`\${u.uuid}\`\\n📊 **Traffic Consumed:** \${gbUsed} GB\\n🚥 **Status:** \${u.is_active ? 'Active' : 'Suspended'}\`;
+            text = `👤 **User:** ${u.username}\n🔑 **UUID:** \`${u.uuid}\`\n📊 **Traffic Consumed:** ${gbUsed} GB\n🚥 **Status:** ${u.is_active ? 'Active' : 'Suspended'}`;
             kb = [
-                [{ text: u.is_active ? "🚫 Suspend User" : "✅ Activate User", callback_data: \`user_toggle:\${u.id}\` }],
-                [{ text: "🔄 Reset Bandwidth", callback_data: \`user_reset:\${u.id}\` }, { text: "🗑️ Delete", callback_data: \`user_delete:\${u.id}\` }],
+                [{ text: u.is_active ? "🚫 Suspend User" : "✅ Activate User", callback_data: `user_toggle:${u.id}` }],
+                [{ text: "🔄 Reset Bandwidth", callback_data: `user_reset:${u.id}` }, { text: "🗑️ Delete", callback_data: `user_delete:${u.id}` }],
                 [{ text: "🔙 Back to Users", callback_data: "menu_users:0" }]
             ];
         }
@@ -78,12 +78,12 @@ async function handleCallbackQuery(cb, db, token) {
         await db.prepare("UPDATE users SET is_active = ? WHERE id = ?").bind(u.is_active ? 0 : 1, uid).run();
         // Redirect to detail
         await answerCb(cb.id, "User status changed!", token);
-        return handleCallbackQuery({ message: cb.message, data: \`user_action:\${uid}\` }, db, token);
+        return handleCallbackQuery({ message: cb.message, data: `user_action:${uid}` }, db, token);
     } else if (data.startsWith("user_reset:")) {
         const uid = data.split(":")[1];
         await db.prepare("UPDATE users SET uploaded_bytes = 0, downloaded_bytes = 0 WHERE id = ?").bind(uid).run();
         await answerCb(cb.id, "Bandwidth reset to 0!", token);
-        return handleCallbackQuery({ message: cb.message, data: \`user_action:\${uid}\` }, db, token);
+        return handleCallbackQuery({ message: cb.message, data: `user_action:${uid}` }, db, token);
     } else if (data.startsWith("user_delete:")) {
         const uid = data.split(":")[1];
         await db.prepare("DELETE FROM users WHERE id = ?").bind(uid).run();
@@ -94,7 +94,7 @@ async function handleCallbackQuery(cb, db, token) {
         text = "🌐 **Smart Relays Configuration**";
         results.forEach(r => {
             const flag = r.country_code === 'US' ? '🇺🇸' : '🌐';
-            kb.push([{ text: \`\${r.is_active?'🟢':'🔴'} \${flag} \${r.name}\`, callback_data: \`relay_toggle:\${r.id}\` }]);
+            kb.push([{ text: `${r.is_active?'🟢':'🔴'} ${flag} ${r.name}`, callback_data: `relay_toggle:${r.id}` }]);
         });
         kb.push([{ text: "🔙 Main Menu", callback_data: "menu_main" }]);
     } else if (data.startsWith("relay_toggle:")) {
@@ -106,7 +106,7 @@ async function handleCallbackQuery(cb, db, token) {
     } else if (data === "menu_panic") {
         const panic = await getSysConfig(db, 'panic_mode');
         const isActive = panic === 'true';
-        text = \`🛡️ **System Status & Panic Control**\\nCurrent Panic Mode: **\${isActive ? 'ACTIVATED' : 'Disabled'}**\\n\\n*Panic mode drops all incoming websocket streams and locks network egress.*\`;
+        text = `🛡️ **System Status & Panic Control**\nCurrent Panic Mode: **${isActive ? 'ACTIVATED' : 'Disabled'}**\n\n*Panic mode drops all incoming websocket streams and locks network egress.*`;
         kb = [
             [{ text: isActive ? "🟢 Deactivate Panic" : "🚨 ACTIVATE PANIC", callback_data: "toggle_panic" }],
             [{ text: "🔙 Main Menu", callback_data: "menu_main" }]
@@ -115,7 +115,7 @@ async function handleCallbackQuery(cb, db, token) {
         const panic = await getSysConfig(db, 'panic_mode');
         const newStatus = panic === 'true' ? 'false' : 'true';
         await db.prepare("UPDATE system_configs SET value = ? WHERE key = 'panic_mode'").bind(newStatus).run();
-        await answerCb(cb.id, \`Panic mode \${newStatus === 'true' ? 'ACTIVATED' : 'Deactivated'}\`, token);
+        await answerCb(cb.id, `Panic mode ${newStatus === 'true' ? 'ACTIVATED' : 'Deactivated'}`, token);
         return handleCallbackQuery({ message: cb.message, data: "menu_panic" }, db, token);
     }
 
@@ -131,7 +131,7 @@ async function handleMessage(msg, db, token) {
         const kb = [
             [{ text: "Enter Interactive Super Panel", callback_data: "menu_main" }]
         ];
-        await fetch(\`https://api.telegram.org/bot\${token}/sendMessage\`, {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -144,7 +144,7 @@ async function handleMessage(msg, db, token) {
 }
 
 async function editMessage(chatId, msgId, text, kb, token) {
-    await fetch(\`https://api.telegram.org/bot\${token}/editMessageText\`, {
+    await fetch(`https://api.telegram.org/bot${token}/editMessageText\`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             chat_id: chatId, message_id: msgId, text: text,
@@ -155,7 +155,7 @@ async function editMessage(chatId, msgId, text, kb, token) {
 }
 
 async function answerCb(cbId, text, token) {
-    await fetch(\`https://api.telegram.org/bot\${token}/answerCallbackQuery\`, {
+    await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ callback_query_id: cbId, text: text })
     });
