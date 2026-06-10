@@ -144,7 +144,7 @@ async function handleMessage(msg, db, token) {
 }
 
 async function editMessage(chatId, msgId, text, kb, token) {
-    await fetch(`https://api.telegram.org/bot${token}/editMessageText\`, {
+    await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             chat_id: chatId, message_id: msgId, text: text,
