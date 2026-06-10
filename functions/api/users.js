@@ -67,7 +67,7 @@ export async function onRequest(context) {
         if (request.method === "POST") {
             const data = await request.json();
             const uuid = crypto.randomUUID();
-            await db.prepare(\`
+            await db.prepare(`
                 INSERT INTO users (uuid, username, email, limit_bytes, expires_at)
                 VALUES (?, ?, ?, ?, ?)
             \`).bind(
