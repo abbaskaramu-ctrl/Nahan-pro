@@ -30,7 +30,7 @@ export async function onRequest(context) {
             const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(header + '.' + payload));
             const validSigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');
             
-            const token = \`\${header}.\${payload}.\${validSigB64}\`;
+            const token = `${header}.${payload}.${validSigB64}`;
             
             return new Response(JSON.stringify({ success: true, token }), { headers: { "Content-Type": "application/json" }});
         }
